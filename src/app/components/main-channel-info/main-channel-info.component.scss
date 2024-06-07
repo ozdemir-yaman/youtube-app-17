@@ -1,0 +1,29 @@
+.channel-info {
+    padding: 16px;
+
+    &__banner {
+        object-fit: cover;
+        width: 100%;
+        border-radius: 16px;
+    }
+
+    &__description {
+        margin-top: 20px;
+        display: flex;
+
+        &-image {
+            margin-right: 16px;
+
+            img {
+                width: 160px;
+                height: 160px;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+        }
+
+        p {
+            max-width: 70%;
+        }
+    }
+}

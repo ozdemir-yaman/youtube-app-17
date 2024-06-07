@@ -1,0 +1,27 @@
+<div class="channel-videos">
+    <button (click)="refresh()" class="channel-videos__load-more">
+        Refresh Videos
+    </button>
+    <h1 class="channel-videos__title">Videos</h1>
+    <div
+        cdkDropList
+        class="channel-videos__list"
+        (cdkDropListDropped)="drop($event)"
+    >
+        @for (video of videos; track video.id) {
+        <div class="cdk-drag-list" cdkDrag>
+            <app-channel-video
+                [video]="video"
+                [channelId]="channelId"
+            ></app-channel-video>
+        </div>
+        }
+    </div>
+    <button
+        (click)="loadMore()"
+        class="channel-videos__load-more"
+        [class.channel-videos__load-more--active]="loadButtonActive"
+    >
+        {{ loadButtonActive ? "Load More" : "No More Videos To Load" }}
+    </button>
+</div>

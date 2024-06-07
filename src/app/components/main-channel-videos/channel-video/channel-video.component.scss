@@ -1,0 +1,27 @@
+.channel-videos__list-container {
+    display: flex;
+    margin: 0px 24px 16px;
+    cursor: move;
+
+    &__thumbnail {
+        margin-right: 16px;
+
+        img {
+            width: 320px;
+            height: 180px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    }
+
+    &__content {
+        h2 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+        }
+    }
+}

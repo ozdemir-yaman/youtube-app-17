@@ -1,0 +1,17 @@
+<div class="channel-videos__list-container">
+    <div class="channel-videos__list-container__thumbnail">
+        <img (click)="openVideo($event)" [src]="video.thumbnail" />
+    </div>
+    <div class="channel-videos__list-container__content">
+        <h2>{{ video.title | unescape }}</h2>
+        <p>{{ video.publishedAt | timeAgo }}</p>
+        <label for="note">Note</label>
+        <input
+            type="text"
+            name="note"
+            id="note"
+            (blur)="updateNote()"
+            [(ngModel)]="video.note"
+        />
+    </div>
+</div>
