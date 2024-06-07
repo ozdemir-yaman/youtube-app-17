@@ -5,7 +5,7 @@ import {
     CdkDrag,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Video } from '../../../types';
+import { NextPageToken, Video } from '../../../types';
 import { ChannelVideoComponent } from './channel-video/channel-video.component';
 import { Select } from '@ngxs/store';
 import { StorageService } from '../../services/storage.service';
@@ -23,17 +23,20 @@ import { ApiService } from '../../services/api.service';
 export class MainChannelVideosComponent {
     protected videos!: Video[];
     protected channelId!: string;
-    protected nextPageToken!: string | undefined;
-    protected loadButtonActive = true;
+    protected nextPageToken!: NextPageToken;
+    protected loadButtonText:
+        | 'Load More'
+        | 'No More Videos To Load'
+        | 'Loading...' = 'Load More';
 
     @Select((state: { general: GeneralStateModel }) => state.general)
-    general$!: Observable<GeneralStateModel>;
+    protected general$!: Observable<GeneralStateModel>;
     constructor(
         private storageService: StorageService,
         private apiService: ApiService
     ) {}
 
-    public ngOnInit(): void {
+    protected ngOnInit(): void {
         this.general$.subscribe((state) => {
             this.channelId = state.channelId;
             this.videos = state.videos;
@@ -46,10 +49,13 @@ export class MainChannelVideosComponent {
         this.nextPageToken =
             this.storageService.getChannelNextPageToken()[this.channelId];
 
-        this.loadButtonActive = this.nextPageToken !== undefined;
+        this.loadButtonText =
+            this.nextPageToken === undefined
+                ? 'No More Videos To Load'
+                : 'Load More';
     }
 
-    drop(event: CdkDragDrop<string[]>): void {
+    protected drop(event: CdkDragDrop<string[]>): void {
         const vidoesCopy = this.videos.slice();
 
         vidoesCopy.splice(
@@ -63,12 +69,12 @@ export class MainChannelVideosComponent {
         moveItemInArray(this.videos, event.previousIndex, event.currentIndex);
     }
 
-    async loadMore(): Promise<void> {
-        if (!this.loadButtonActive) {
+    protected async loadMore(): Promise<void> {
+        if (this.loadButtonText !== 'Load More') {
             return;
         }
 
-        this.loadButtonActive = false;
+        this.loadButtonText = 'Loading...';
 
         await this.apiService.updateVideoData(
             this.channelId,

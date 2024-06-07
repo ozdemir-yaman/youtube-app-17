@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ChannelResponse, Video, VideoResponse } from '../../types';
+import {
+    ChannelResponse,
+    Video,
+    VideoResponse,
+    Channel,
+    NextPageToken,
+} from '../../types';
 import { StorageService } from './storage.service';
-import { Channel } from '../model/channel.model';
 import { GeneralActions } from '../store/actions/general.action';
 import { Store } from '@ngxs/store';
 
@@ -27,31 +32,46 @@ export class ApiService {
         return videos;
     }
 
+    private formatFetchUrl(config: {
+        type: 'channels' | 'search';
+        params: Record<string, string>;
+    }): string {
+        const baseUrl = new URL(
+            `https://www.googleapis.com/youtube/v3/${config.type}?key=AIzaSyBAAhkxdhp6wLcMQsmzd1FDuwJg5IGTocs`
+        );
+
+        Object.keys(config.params).forEach((param) => {
+            baseUrl.searchParams.append(param, config.params[param]);
+        });
+
+        return baseUrl.href;
+    }
+
     private async sendVideoFetchRequest(
         channelId: string,
         nextPageToken?: string
     ): Promise<{
         items: VideoResponse[];
-        nextPageToken: string | undefined;
+        nextPageToken: NextPageToken;
     }> {
-        const videoResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBAAhkxdhp6wLcMQsmzd1FDuwJg5IGTocs&channelId=${channelId}&${
-                nextPageToken ? `pageToken=${nextPageToken}&` : ''
-            }part=snippet&maxResults=50&type=video&order=date`
-        );
+        const fetchUrl = this.formatFetchUrl({
+            type: 'search',
+            params: {
+                channelId,
+                pageToken: nextPageToken || '',
+                part: 'snippet',
+                maxResults: '50',
+                type: 'video',
+                order: 'date',
+            },
+        });
+        const videoResponse = await fetch(fetchUrl);
         const videoData = (await videoResponse.json()) as {
             items: VideoResponse[];
-            nextPageToken: string | undefined;
+            nextPageToken: NextPageToken;
         };
 
         return videoData;
-    }
-
-    private compareVideos(
-        storedVideos: Video[],
-        fetchedVideos: Video[]
-    ): boolean {
-        return JSON.stringify(storedVideos) === JSON.stringify(fetchedVideos);
     }
 
     public async getVideoData(
@@ -89,12 +109,7 @@ export class ApiService {
 
         const videoData = await this.sendVideoFetchRequest(channelId);
         const formattedVideos = this.formatVideodata(videoData.items);
-
-        if (this.compareVideos(storedChannelVideos, formattedVideos)) {
-            alert('No new videos to show.');
-
-            return;
-        }
+        let mutated = false;
 
         formattedVideos.forEach((video) => {
             if (
@@ -105,8 +120,16 @@ export class ApiService {
                 return;
             }
 
+            mutated = true;
+
             storedChannelVideos.unshift(video);
         });
+
+        if (!mutated) {
+            alert('No new videos to show.');
+
+            return;
+        }
 
         this.setVideoState(storedChannelVideos);
         this.storageService.storeChannelVideos(channelId, storedChannelVideos);
@@ -120,9 +143,14 @@ export class ApiService {
             return storedChannelData;
         }
 
-        const channelResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/channels?key=AIzaSyBAAhkxdhp6wLcMQsmzd1FDuwJg5IGTocs&id=${channelId}&part=brandingSettings,snippet,contentDetails`
-        );
+        const fetchUrl = this.formatFetchUrl({
+            type: 'channels',
+            params: {
+                id: channelId,
+                part: 'brandingSettings,snippet,contentDetails',
+            },
+        });
+        const channelResponse = await fetch(fetchUrl);
         const channelData = (await channelResponse.json()) as {
             items: ChannelResponse[];
             pageInfo: { totalResults: number };
@@ -172,9 +200,7 @@ export class ApiService {
     }
 
     private setVideoState(videos: Video[]) {
-        this.store.dispatch(
-            new GeneralActions.SetVideos({ videos, reset: true })
-        );
+        this.store.dispatch(new GeneralActions.SetVideos(videos));
     }
 
     public async setAllData(channelId: string): Promise<void> {
@@ -187,11 +213,11 @@ export class ApiService {
 
     public async updateVideoData(
         channelId: string,
-        nextPageToken: string | undefined
+        nextPageToken: NextPageToken
     ): Promise<void> {
         const videos = await this.getVideoData(channelId, nextPageToken);
 
-        this.store.dispatch(new GeneralActions.SetVideos({ videos }));
+        this.store.dispatch(new GeneralActions.UpdateVideos(videos));
         this.store.dispatch(new GeneralActions.SetLoadingState(false));
     }
 }

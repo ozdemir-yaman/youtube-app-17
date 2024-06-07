@@ -11,13 +11,13 @@ import { GeneralStateModel } from '../../store/states/general.state';
     styleUrl: './main-channel-info.component.scss',
 })
 export class MainChannelInfoComponent {
-    name!: string;
-    profile!: string;
-    banner!: string;
-    description!: string;
+    protected name!: string;
+    protected profile!: string;
+    protected banner!: string;
+    protected description!: string;
 
     @Select((state: { general: GeneralStateModel }) => state.general)
-    general$!: Observable<GeneralStateModel>;
+    protected general$!: Observable<GeneralStateModel>;
 
     constructor() {
         this.general$.subscribe((state) => {

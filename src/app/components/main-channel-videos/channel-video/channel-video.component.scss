@@ -17,11 +17,25 @@
     &__content {
         h2 {
             margin-top: 0;
+            width: 300px;
         }
 
         label {
             display: block;
             margin-bottom: 4px;
+        }
+    }
+
+    textarea {
+        margin-left: auto;
+        width: 400px;
+        min-width: 100px;
+        font-size: 32px;
+        padding: 12px;
+        resize: none;
+
+        &:focus {
+            outline: none;
         }
     }
 }

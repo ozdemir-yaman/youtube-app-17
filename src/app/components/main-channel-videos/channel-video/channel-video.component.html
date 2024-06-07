@@ -5,13 +5,10 @@
     <div class="channel-videos__list-container__content">
         <h2>{{ video.title | unescape }}</h2>
         <p>{{ video.publishedAt | timeAgo }}</p>
-        <label for="note">Note</label>
-        <input
-            type="text"
-            name="note"
-            id="note"
-            (blur)="updateNote()"
-            [(ngModel)]="video.note"
-        />
     </div>
+    <textarea
+        placeholder="Enter A Note"
+        (blur)="updateNote()"
+        [(ngModel)]="video.note"
+    ></textarea>
 </div>

@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@angular/core';
-import { Channel } from '../model/channel.model';
-import { Video } from '../../types';
+import { Injectable } from '@angular/core';
+import { Video, Channel, NextPageToken } from '../../types';
 
 @Injectable({
     providedIn: 'root',
@@ -52,7 +51,7 @@ export class StorageService {
         localStorage.removeItem('last-selected-channel-id');
     }
 
-    getChannelNextPageToken(): Record<string, string | undefined> {
+    getChannelNextPageToken(): Record<string, NextPageToken> {
         return JSON.parse(
             localStorage.getItem('next-page-token-by-channel') || '{}'
         );
@@ -60,7 +59,7 @@ export class StorageService {
 
     public setChannelNextPageToken(
         channelId: string,
-        token: string | undefined
+        token: NextPageToken
     ): void {
         let nextPageTokens = this.getChannelNextPageToken();
 

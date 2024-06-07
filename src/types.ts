@@ -10,12 +10,21 @@ type Thumbnails = {
     high: Thumbnail;
 };
 
+export type NextPageToken = string | undefined;
+
 export type Video = {
     id: string;
     thumbnail: string;
     title: string;
     publishedAt: string;
     note: string;
+};
+
+export type Channel = {
+    banner: string;
+    profile: string;
+    name: string;
+    description: string;
 };
 
 export type VideoResponse = {

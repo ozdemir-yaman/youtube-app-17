@@ -1,5 +1,4 @@
-import { Video } from '../../../types';
-import { Channel } from '../../model/channel.model';
+import { Video, Channel } from '../../../types';
 
 export namespace GeneralActions {
     export class SetChannelInfo {
@@ -11,7 +10,13 @@ export namespace GeneralActions {
     export class SetVideos {
         static readonly type = '[Videos] Set Videos';
 
-        constructor(public payload: { videos: Video[]; reset?: boolean }) {}
+        constructor(public payload: Video[]) {}
+    }
+
+    export class UpdateVideos {
+        static readonly type = '[Videos] Update Videos';
+
+        constructor(public payload: Video[]) {}
     }
 
     export class SetChannelId {

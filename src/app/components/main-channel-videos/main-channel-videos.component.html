@@ -1,5 +1,8 @@
 <div class="channel-videos">
-    <button (click)="refresh()" class="channel-videos__load-more">
+    <button
+        (click)="refresh()"
+        class="channel-videos__cta channel-videos__cta--active"
+    >
         Refresh Videos
     </button>
     <h1 class="channel-videos__title">Videos</h1>
@@ -19,9 +22,9 @@
     </div>
     <button
         (click)="loadMore()"
-        class="channel-videos__load-more"
-        [class.channel-videos__load-more--active]="loadButtonActive"
+        class="channel-videos__cta"
+        [class.channel-videos__cta--active]="loadButtonText === 'Load More'"
     >
-        {{ loadButtonActive ? "Load More" : "No More Videos To Load" }}
+        {{ loadButtonText }}
     </button>
 </div>

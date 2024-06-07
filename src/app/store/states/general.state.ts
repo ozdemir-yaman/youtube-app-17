@@ -1,8 +1,7 @@
 import { Action, State, StateContext } from '@ngxs/store';
-import { Channel } from '../../model/channel.model';
 import { Injectable } from '@angular/core';
 import { GeneralActions } from '../actions/general.action';
-import { Video } from '../../../types';
+import { Video, Channel } from '../../../types';
 import { StorageService } from '../../services/storage.service';
 
 export interface GeneralStateModel {
@@ -46,16 +45,17 @@ export class GeneralState {
         ctx: StateContext<GeneralStateModel>,
         action: GeneralActions.SetVideos
     ) {
-        if (action.payload.reset) {
-            ctx.patchState({
-                videos: action.payload.videos,
-            });
-
-            return;
-        }
-
         ctx.patchState({
-            videos: [...ctx.getState().videos, ...action.payload.videos],
+            videos: action.payload,
+        });
+    }
+
+    @Action(GeneralActions.UpdateVideos) updateVideos(
+        ctx: StateContext<GeneralStateModel>,
+        action: GeneralActions.UpdateVideos
+    ) {
+        ctx.patchState({
+            videos: [...ctx.getState().videos, ...action.payload],
         });
     }
 

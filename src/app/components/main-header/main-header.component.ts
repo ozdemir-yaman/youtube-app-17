@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngxs/store';
-import { GeneralStateModel } from '../../store/states/general.state';
 import { GeneralActions } from '../../store/actions/general.action';
 import { AppComponent } from '../../app.component';
 import { StorageService } from '../../services/storage.service';
@@ -29,7 +28,7 @@ export class MainHeaderComponent {
 
     protected search() {
         if (this.initialChannelId === this.channelId) {
-            alert('I saw that one coming ;) The entered ID is already in use');
+            alert('The entered ID is already in use');
         }
 
         this.store.dispatch(new GeneralActions.SetChannelId(this.channelId));
