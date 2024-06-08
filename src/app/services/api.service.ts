@@ -5,6 +5,7 @@ import {
     VideoResponse,
     Channel,
     NextPageToken,
+    FormatUrlParams,
 } from '../../types';
 import { StorageService } from './storage.service';
 import { GeneralActions } from '../store/actions/general.action';
@@ -32,10 +33,16 @@ export class ApiService {
         return videos;
     }
 
-    private formatFetchUrl(config: {
-        type: 'channels' | 'search';
-        params: Record<string, string>;
-    }): string {
+    private formatChanneldata(item: ChannelResponse): Channel {
+        return {
+            banner: `${item.brandingSettings.image.bannerExternalUrl}=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj`,
+            profile: item.snippet.thumbnails.medium.url,
+            name: item.snippet.title,
+            description: item.snippet.description,
+        };
+    }
+
+    private formatFetchUrl(config: FormatUrlParams): string {
         const baseUrl = new URL(
             `https://www.googleapis.com/youtube/v3/${config.type}?key=AIzaSyBAAhkxdhp6wLcMQsmzd1FDuwJg5IGTocs`
         );
@@ -72,6 +79,26 @@ export class ApiService {
         };
 
         return videoData;
+    }
+
+    private async sendChannelFetchRequest(channelId: string): Promise<{
+        items: ChannelResponse[];
+        pageInfo: { totalResults: number };
+    }> {
+        const fetchUrl = this.formatFetchUrl({
+            type: 'channels',
+            params: {
+                id: channelId,
+                part: 'brandingSettings,snippet,contentDetails',
+            },
+        });
+        const channelResponse = await fetch(fetchUrl);
+        const channelData = (await channelResponse.json()) as {
+            items: ChannelResponse[];
+            pageInfo: { totalResults: number };
+        };
+
+        return channelData;
     }
 
     public async getVideoData(
@@ -143,18 +170,7 @@ export class ApiService {
             return storedChannelData;
         }
 
-        const fetchUrl = this.formatFetchUrl({
-            type: 'channels',
-            params: {
-                id: channelId,
-                part: 'brandingSettings,snippet,contentDetails',
-            },
-        });
-        const channelResponse = await fetch(fetchUrl);
-        const channelData = (await channelResponse.json()) as {
-            items: ChannelResponse[];
-            pageInfo: { totalResults: number };
-        };
+        const channelData = await this.sendChannelFetchRequest(channelId);
 
         if (!channelData.pageInfo.totalResults) {
             alert('Channel not found');
@@ -162,25 +178,7 @@ export class ApiService {
             window.location.reload();
         }
 
-        const {
-            snippet: {
-                title: name,
-                thumbnails: {
-                    medium: { url: profile },
-                },
-                description,
-            },
-            brandingSettings: {
-                image: { bannerExternalUrl: banner },
-            },
-        } = channelData.items[0];
-
-        const channelInfo = {
-            name,
-            profile,
-            description,
-            banner: `${banner}=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj`,
-        };
+        const channelInfo = this.formatChanneldata(channelData.items[0]);
 
         this.storageService.storeChannelData(channelId, channelInfo);
 

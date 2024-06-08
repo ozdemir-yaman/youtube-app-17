@@ -51,3 +51,8 @@ export type ChannelResponse = {
         };
     };
 };
+
+export type FormatUrlParams = {
+    type: 'channels' | 'search';
+    params: Record<string, string>;
+};
